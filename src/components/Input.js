@@ -12,11 +12,15 @@ class Input extends Component {
     error: PropTypes.string,
     validate: PropTypes.bool,
     validateForm: PropTypes.func,
-    required: PropTypes.bool,
     validateOn: PropTypes.oneOf([
       "change",
       "blur",
     ]),
+    rules: PropTypes.shape({
+      required: PropTypes.bool,
+      min: PropTypes.number,
+      max: PropTypes.number,
+    }),
   }
 
   static defaultProps = {
@@ -25,7 +29,6 @@ class Input extends Component {
     onFocus: null,
     validate: false,
     error: "",
-    required: false,
     validateOn: "blur",
   }
 
@@ -40,14 +43,14 @@ class Input extends Component {
 
     const validate = this.props.validateOn === "change"
 
-    this.props.onChange(e, this.props.required, this.props.label, validate)
+    this.props.onChange(e, this.props.rules, this.props.label, validate)
   }
 
   handleOnBlur = e => {
     this.setState({ focus: false, blurred: true })
 
     if(this.props.onBlur) {
-      this.props.onBlur(e, this.props.required, this.props.label)
+      this.props.onBlur(e, this.props.rules, this.props.label)
     }
   }
 
@@ -60,14 +63,15 @@ class Input extends Component {
   }
 
   render() {
+    const { label, rules } = this.props
+
+    debugger
+
     return (
       <div className="field">
-        {
-          this.props.label &&
-            <label className="label">{this.props.label}</label>
-        }
+        { label && <label className="label">{label}</label> }
 
-        <div className="control">
+        <div className={`control ${rules.required ? "has-icons-right" : ""}`}>
           <input
             type="text"
             value={this.props.value}
@@ -77,6 +81,13 @@ class Input extends Component {
             onFocus={this.handleonFocus}
             className={`input ${this.props.error ? "is-danger" : ""}`}
           />
+
+          {
+            rules.required &&
+              <span className="icon is-small is-right">
+                <i className="fa fa-asterisk" style={{ color: "rgba(255, 56, 56, 0.75)" }}></i>
+              </span>
+          }
         </div>
 
         {

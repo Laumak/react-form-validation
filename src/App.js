@@ -7,43 +7,13 @@ class App extends Component {
   state = {
     field1: "",
     field2: "",
+    field3: "",
 
     formErrors: {
       field1: "",
       field2: "",
+      field3: "",
     },
-  }
-
-  handleOnInputChange = (e, required, label, validate) => {
-    const { name, value } = e.target
-    let oldValue = ""
-
-    this.setState(prevState => {
-      oldValue = prevState[name]
-
-      return { [name]: value }
-    }, () => {
-      // Recover "onBlur" validating field after a value has been given
-      if((!oldValue && !!value) || validate) {
-        this.validate(name, value, required, label)
-      }
-    })
-  }
-
-  handleOnInputBlur = (e, required, label) => {
-    const { name, value } = e.target
-
-    this.validate(name, value, required, label)
-  }
-
-  validate = (name, value, required, label = name) => {
-    let message = ""
-
-    if(required && !value) {
-      message = `${label} on pakollinen`
-    }
-
-    this.setError(name, message)
   }
 
   setError = (name, message) => {
@@ -54,6 +24,42 @@ class App extends Component {
         [name]: message,
       }
     })
+  }
+
+  validate = (name, value, rules, label = name) => {
+    let message = ""
+
+    if(rules.min && value.length < 3) {
+      message = `"${label}" tulee olla vähintään ${rules.min} merkkiä pitkä`
+    }
+
+    if(rules.required && !value) {
+      message = `"${label}" on pakollinen`
+    }
+
+    this.setError(name, message)
+  }
+
+  handleOnInputChange = (e, rules, label, validate) => {
+    const { name, value } = e.target
+    let oldValue = ""
+
+    this.setState(prevState => {
+      oldValue = prevState[name]
+
+      return { [name]: value }
+    }, () => {
+      // Recover "onBlur" validating field after a value has been given
+      if((!oldValue && !!value && !rules.min) || validate) {
+        this.validate(name, value, rules, label)
+      }
+    })
+  }
+
+  handleOnInputBlur = (e, rules, label) => {
+    const { name, value } = e.target
+
+    this.validate(name, value, rules, label)
   }
 
   submitButtonDisabled = () => {
@@ -70,22 +76,32 @@ class App extends Component {
               <Form errors={this.state.formErrors}>
                 <Input
                   name="field1"
-                  label="Required, validate onChange"
+                  label="Required, onChange"
                   value={this.state.field1}
                   onChange={this.handleOnInputChange}
                   onBlur={this.handleOnInputBlur}
-                  required={true}
                   validateOn="change"
+                  rules={{ required: true }}
                 />
 
                 <Input
                   name="field2"
-                  label="Required, validate onBlur"
+                  label="Required, onBlur"
                   value={this.state.field2}
                   onChange={this.handleOnInputChange}
                   onBlur={this.handleOnInputBlur}
-                  required={true}
                   validateOn="blur"
+                  rules={{ required: true }}
+                />
+
+                <Input
+                  name="field3"
+                  label="Required, onBlur, min 3 chars"
+                  value={this.state.field3}
+                  onChange={this.handleOnInputChange}
+                  onBlur={this.handleOnInputBlur}
+                  validateOn="blur"
+                  rules={{ required: true, min: 3 }}
                 />
 
                 <button
