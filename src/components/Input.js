@@ -65,8 +65,6 @@ class Input extends Component {
   render() {
     const { label, rules } = this.props
 
-    debugger
-
     return (
       <div className="field">
         { label && <label className="label">{label}</label> }
